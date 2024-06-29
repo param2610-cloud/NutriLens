@@ -1,5 +1,6 @@
 import { Link, useRouter } from "expo-router";
-import React, { useState } from "react";
+import React from "react";
+import { useState } from "react";
 import {
   View,
   Text,
@@ -10,19 +11,21 @@ import {
   TouchableOpacity,
 } from "react-native";
 
-const Index: React.FC = () => {
+const index: React.FC = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const router = useRouter();
 
   const handleLogin = () => {
-    
-    
+    const api = process.env.EXPO_PUBLIC_API_KEY;
+
+    console.log(api);
+
     console.log(email, password);
 
     const isAuthenticated = true;
     if (isAuthenticated) {
-      router.push("/(tabs)/home"); 
+      router.push("/(tabs)/home");
     }
   };
 
@@ -108,4 +111,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Index;
+export default index;
