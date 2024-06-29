@@ -1,6 +1,8 @@
 import { Camera, CameraType } from 'expo-camera/legacy';
 import { useState } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View,TextInput } from 'react-native';
+import { BarcodeScanningResult } from 'expo-camera';
+
 
 export default function App() {
   const [type, setType] = useState(CameraType.back);
@@ -29,10 +31,22 @@ export default function App() {
     console.log('Submitted:', inputText);
     setInputText('');
   };
+//   const [scanned, setScanned] = useState(false);
+//     const [result, setResult] = useState('Nothing scanned yet');
+
+//         const scanHandler = (type:any, data:any) => {
+//     setScanned(false); // <----- change this 
+//     setResult(data);
+    
+//     setTimeout(() => {
+//         setScanned(true); // <----- change this 
+//     }, 3000);
+// }
+  
 
   return (
     <View style={styles.container}>
-      <Camera style={styles.camera} type={type}>
+      <Camera onBarCodeScanned={(result) => console.log(result.data)} style={styles.camera} type={type}>
         {/* Camera View */}
         <View style={styles.buttonContainer}>
           {/* Flip Camera Button */}
@@ -41,7 +55,7 @@ export default function App() {
           </TouchableOpacity>
         </View>
 
-        {/* Input Bar and Submit Button */}
+        
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.input}
@@ -99,7 +113,8 @@ const styles = StyleSheet.create({
       marginRight: 10,
       marginLeft:10,
       height:"40%",
-      fontSize:18
+      fontSize:18,
+      
     },
     submitButton: {
       backgroundColor: 'blue',
