@@ -13,6 +13,15 @@ export default function TabLayout() {
           ),
         }}
       />
+        <Tabs.Screen
+          name="barcode"
+          options={{
+            title: "barcode",
+            tabBarIcon: ({ color }) => (
+              <FontAwesome size={28} name="camera" color={color} />
+            ),
+          }}
+        />
       <Tabs.Screen
         name="profile"
         options={{
