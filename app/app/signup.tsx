@@ -17,7 +17,7 @@ const SignUp: React.FC = () => {
 
   const handleSignUp = () => {
     // Implement your signup logic here
-    console.log(email, password);
+    console.log(name, email, password);
   };
 
   return (
