@@ -16,8 +16,14 @@ const Index: React.FC = () => {
   const router = useRouter();
 
   const handleLogin = () => {
-    // Implement your login logic here
+    
+    
     console.log(email, password);
+
+    const isAuthenticated = true;
+    if (isAuthenticated) {
+      router.push("/(tabs)/home"); 
+    }
   };
 
   return (
