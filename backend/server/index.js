@@ -7,6 +7,7 @@ const app=express();
 app.post("/rate", async (req,res)=>{
 
 
+    // console.log(req.body);
     const {user_id,stars}=req.body;
 
     try {

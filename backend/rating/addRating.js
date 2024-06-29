@@ -7,4 +7,7 @@ const addRating=async (user_id,stars)=>{
     return rating;
 }
 
+
+const resp=await addRating("pritam",4);
+console.log(resp);
 export default addRating;
