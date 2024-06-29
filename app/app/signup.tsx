@@ -1,4 +1,4 @@
-import { Link, useRouter } from "expo-router";
+import { Link, router } from "expo-router";
 import React, { useState } from "react";
 import {
   View,
@@ -10,20 +10,27 @@ import {
   TouchableOpacity,
 } from "react-native";
 
-const Index: React.FC = () => {
+const SignUp: React.FC = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const router = useRouter();
+  const [name, setName] = useState<string>("");
 
-  const handleLogin = () => {
-    // Implement your login logic here
+  const handleSignUp = () => {
+    // Implement your signup logic here
     console.log(email, password);
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.formContainer}>
-        <Text style={styles.title}>NutriLense Login</Text>
+        <Text style={styles.title}>NutriLense Register</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Name"
+          value={name}
+          onChangeText={setName}
+          autoCapitalize="none"
+        />
         <TextInput
           style={styles.input}
           placeholder="Email"
@@ -40,7 +47,8 @@ const Index: React.FC = () => {
           secureTextEntry
           autoCapitalize="none"
         />
-        <Button title="Login" onPress={handleLogin} />
+
+        <Button title="Sign Up" onPress={handleSignUp} />
 
         <View
           style={{
@@ -50,6 +58,7 @@ const Index: React.FC = () => {
             marginVertical: "7%",
           }}
         ></View>
+
         <View
           style={{
             display: "flex",
@@ -59,9 +68,9 @@ const Index: React.FC = () => {
             width: "100%",
           }}
         >
-          <Text>Don't have account?</Text>
-          <Link style={{ color: "#2563eb" }} href={{ pathname: "/signup" }}>
-            Signup
+          <Text>Already have account?</Text>
+          <Link style={{ color: "#2563eb" }} href={{ pathname: "/" }}>
+            Login
           </Link>
         </View>
       </View>
@@ -100,6 +109,11 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     paddingHorizontal: 8,
   },
+  loginLink: {
+    marginTop: 16,
+    color: "#3b82f6",
+    textAlign: "center",
+  },
 });
 
-export default Index;
+export default SignUp;
