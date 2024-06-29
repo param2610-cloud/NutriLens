@@ -46,13 +46,13 @@ export default function App() {
 // }
   const postScan = (result:any)=>{
     if(result){
-      router.push(`/${slug}`)
+      router.push(`/${result}`)
     }
   }
 
   return (
     <View style={styles.container}>
-      <Camera onBarCodeScanned={(result) => console.log(result.data)} style={styles.camera} type={type}>
+      <Camera onBarCodeScanned={(result) => postScan(result.data)} style={styles.camera} type={type}>
         {/* Camera View */}
         <View style={styles.buttonContainer}>
           {/* Flip Camera Button */}

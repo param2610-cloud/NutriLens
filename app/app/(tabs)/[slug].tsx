@@ -7,7 +7,7 @@ const slug = () => {
   const { slug } = useLocalSearchParams();
 
   useEffect(() => {
-    console.log(slug);
+    console.log("get from api",slug);
   }, [slug]);
   return <ProductDetails />;
 };
