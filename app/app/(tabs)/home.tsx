@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   View,
   Text,
@@ -9,8 +9,12 @@ import {
 // import { Camera } from 'expo-camera';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from "expo-router";
+import * as SecureStore from 'expo-secure-store';
 
 const HomeScreen: React.FC = () => {
+  useEffect(()=>{
+    SecureStore.getItem("id");
+  },[])
   
   const socialMediaPosts = [    
     {

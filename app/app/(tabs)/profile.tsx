@@ -1,9 +1,20 @@
-import React from "react";
-import { StyleSheet, Text, View, Button } from "react-native";
+import React, { useState } from "react";
+import { StyleSheet, Text, View, Button,ActivityIndicator } from "react-native";
+import { supabase } from "@/lib/supabase";
+
+import { router } from "expo-router";
 
 const Profile = () => {
-  const handleLogout = () => {
-    console.log("User logged out");
+  const [loading,setLoading] = useState(false);
+  const handleLogout = async () => {
+    setLoading(true)
+    const { error } = await supabase.auth.signOut()
+    setLoading(false);
+  if (error) console.log('Error logging out:', error.message)
+  else console.log('Logged out successfully')
+router.push("/")
+
+    
   };
 
   return (
@@ -12,7 +23,10 @@ const Profile = () => {
         <Text style={styles.text}>Name: John Doe</Text>
         <Text style={styles.text}>Email: johndoe@example.com</Text>
         <View style={styles.buttonContainer}>
-          <Button title="Logout" onPress={handleLogout} />
+          {
+            loading?<ActivityIndicator color={"#fff"} /> : <Button title="Logout" onPress={handleLogout} />
+          }
+          
         </View>
       </View>
     </View>

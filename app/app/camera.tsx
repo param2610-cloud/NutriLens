@@ -2,6 +2,8 @@ import { Camera, CameraType } from 'expo-camera/legacy';
 import { useState } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View,TextInput } from 'react-native';
 import { BarcodeScanningResult } from 'expo-camera';
+import { router } from 'expo-router';
+import slug from './(tabs)/[slug]';
 
 
 export default function App() {
@@ -42,7 +44,11 @@ export default function App() {
 //         setScanned(true); // <----- change this 
 //     }, 3000);
 // }
-  
+  const postScan = (result:any)=>{
+    if(result){
+      router.push(`/${slug}`)
+    }
+  }
 
   return (
     <View style={styles.container}>

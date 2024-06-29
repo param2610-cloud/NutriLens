@@ -1,5 +1,7 @@
 import { Link, router } from "expo-router";
 import React, { useState } from "react";
+import {app} from "@/firebase"
+import auth from '@react-native-firebase/auth';
 import {
   View,
   Text,
@@ -8,6 +10,7 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Alert
 } from "react-native";
 
 const SignUp: React.FC = () => {
@@ -15,9 +18,21 @@ const SignUp: React.FC = () => {
   const [password, setPassword] = useState<string>("");
   const [name, setName] = useState<string>("");
 
-  const handleSignUp = () => {
-    // Implement your signup logic here
-    console.log(name, email, password);
+  const handleSignup = async () => {
+    try {
+      await auth().createUserWithEmailAndPassword(email, password);
+      console.log(name, email, password);
+      Alert.alert('Success', 'User account created & signed in!');
+      router.push("(tabs)/home")    
+    } catch (error:any) {
+      if (error.code === 'auth/email-already-in-use') {
+        Alert.alert('Error', 'That email address is already in use!');
+      } else if (error.code === 'auth/invalid-email') {
+        Alert.alert('Error', 'That email address is invalid!');
+      } else {
+        Alert.alert('Error', error.message);
+      }
+    }
   };
 
   return (
@@ -48,7 +63,7 @@ const SignUp: React.FC = () => {
           autoCapitalize="none"
         />
 
-        <Button title="Sign Up" onPress={handleSignUp} />
+        <Button title="Sign Up" onPress={handleSignup} />
 
         <View
           style={{
