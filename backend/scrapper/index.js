@@ -1,15 +1,9 @@
-import fs, { link } from "fs";
-import path from "path";
 import puppeteer from "puppeteer";
-
-const barcode = "8901491001137 blinkit";
-
-const google_search = `https://www.google.com/search?q=${barcode}`;
 
 import fetch from "node-fetch";
 import { parse } from "node-html-parser";
 
-const fetchIngredients = async (link) => {
+export const fetchIngredients = async (link) => {
   let resp = await fetch(link, {
     headers: {
       accept: "*/*",
@@ -57,13 +51,12 @@ const fetchIngredients = async (link) => {
 
   const ingredientSnippet = snippets.filter((ele) => {
     if (ele.data && ele.data.title && ele.data.title.text) {
-      // console.log(ele.data.title);
       return ele.data.title.text.toLowerCase() === "ingredients";
     }
     return false;
   });
 
-  return ingredientSnippet[0].data.subtitle.text;
+  return ingredientSnippet[0] && ingredientSnippet[0].data.subtitle.text;
 
   // console.log("Ingredient snippet:", );
   // console.log(resp.snippet_list_updater_data.expand_attributes.payload.snippets_to_add);
@@ -78,27 +71,30 @@ const fetchIngredients = async (link) => {
   // console.log(igre);
 };
 
-const fetchImages = async (link) => {
+export const fetchImages = async (link) => {
   let resp = await fetch(link, {
-    "headers": {
-      "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+    headers: {
+      accept:
+        "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
       "accept-language": "en-US,en;q=0.9",
       "cache-control": "max-age=0",
-      "priority": "u=0, i",
-      "sec-ch-ua": "\"Not/A)Brand\";v=\"8\", \"Chromium\";v=\"126\", \"Google Chrome\";v=\"126\"",
+      priority: "u=0, i",
+      "sec-ch-ua":
+        '"Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"',
       "sec-ch-ua-mobile": "?0",
-      "sec-ch-ua-platform": "\"Windows\"",
+      "sec-ch-ua-platform": '"Windows"',
       "sec-fetch-dest": "document",
       "sec-fetch-mode": "navigate",
       "sec-fetch-site": "cross-site",
       "sec-fetch-user": "?1",
       "upgrade-insecure-requests": "1",
-      "cookie": "gr_1_deviceId=1e41c4d5-78b4-4554-9ee9-70a2b3286e1f; _gcl_au=1.1.1462852392.1719634039; gr_1_lat=28.4652382; gr_1_lon=77.0615957; gr_1_locality=1849; _gid=GA1.2.1564788996.1719634039; _fbp=fb.1.1719634039631.390347670648404354; gr_1_landmark=undefined; city=Kolkata; __cfruid=f836d204192ba6bd6bd9d23628859cfc80d24ff1-1719640369; _cfuvid=atFtJAwFtH5eSHMZYz5.CA_k2sXeZ15Da9eSrVCMQ2k-1719640369706-0.0.1.1-604800000; __cf_bm=K19vZM2VQx8j0EuLf6p9ydG9oMjpc_d9sNpT1Cug5JM-1719655779-1.0.1.1-SMeWm6SnQ_Btl2mVLHeJLwyAPdcSt5VF1HXE0aC2J8vaPF9XHbZm7PEZPZvHhDEMIZOV4F8jjwRWbWuYxzYfyA; _ga=GA1.1.78518523.1719634039; _ga_JSMJG966C7=GS1.1.1719655782.3.1.1719655831.11.0.0; _ga_DDJ0134H6Z=GS1.2.1719655785.4.1.1719655832.13.0.0",
-      "Referer": "https://www.google.com/",
-      "Referrer-Policy": "origin"
+      cookie:
+        "gr_1_deviceId=1e41c4d5-78b4-4554-9ee9-70a2b3286e1f; _gcl_au=1.1.1462852392.1719634039; gr_1_lat=28.4652382; gr_1_lon=77.0615957; gr_1_locality=1849; _gid=GA1.2.1564788996.1719634039; _fbp=fb.1.1719634039631.390347670648404354; gr_1_landmark=undefined; city=Kolkata; __cfruid=f836d204192ba6bd6bd9d23628859cfc80d24ff1-1719640369; _cfuvid=atFtJAwFtH5eSHMZYz5.CA_k2sXeZ15Da9eSrVCMQ2k-1719640369706-0.0.1.1-604800000; __cf_bm=K19vZM2VQx8j0EuLf6p9ydG9oMjpc_d9sNpT1Cug5JM-1719655779-1.0.1.1-SMeWm6SnQ_Btl2mVLHeJLwyAPdcSt5VF1HXE0aC2J8vaPF9XHbZm7PEZPZvHhDEMIZOV4F8jjwRWbWuYxzYfyA; _ga=GA1.1.78518523.1719634039; _ga_JSMJG966C7=GS1.1.1719655782.3.1.1719655831.11.0.0; _ga_DDJ0134H6Z=GS1.2.1719655785.4.1.1719655832.13.0.0",
+      Referer: "https://www.google.com/",
+      "Referrer-Policy": "origin",
     },
-    "body": null,
-    "method": "GET"
+    body: null,
+    method: "GET",
   });
 
   resp = await resp.text();
@@ -106,31 +102,30 @@ const fetchImages = async (link) => {
   const root = parse(resp);
   const allImages = [];
 
-  console.log(root.querySelectorAll("#carousel-items > section > div > img").forEach((img,i)=>{
-    let urlMatch;
-    if(img){
+  root
+    .querySelectorAll("#carousel-items > section > div > img")
+    .forEach((img, i) => {
+      let urlMatch;
+      if (img) {
+        urlMatch = img.rawAttrs.match(/src="([^"]+)"/);
+      }
 
-      urlMatch = img.rawAttrs.match(/src="([^"]+)"/);
-    }
-
-if (urlMatch && urlMatch[1]) {
-    const imageUrl = urlMatch[1];
-    console.log(imageUrl);
-    allImages.push(imageUrl);
-} else {
-    console.log("URL not found.");
-}
-
-  }));
+      if (urlMatch && urlMatch[1]) {
+        const imageUrl = urlMatch[1];
+        allImages.push(imageUrl);
+      }
+    });
 
   //   console.log(allImages);
   return allImages;
 };
 
-const scraping = async () => {
+const browser = await puppeteer.launch({ headless: true });
+export const scraping = async (barcode) => {
   // Launch a browser and open a new blank page
-  const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
+
+  const google_search = `https://www.google.com/search?q=${barcode}%20blinklit`;
 
   // Navigate to the page url
   await page.goto(google_search);
@@ -153,46 +148,27 @@ const scraping = async () => {
 
   // console.log(search_data);
 
-  await browser.close();
-
-  fs.writeFile("data.json", JSON.stringify(search_data), (err) => {
-    if (err) {
-      throw err;
-    }
-    console.log("Successfully Saved JSON File!");
-  });
+  // await browser.close();
   return search_data;
 };
 
 // scraping();
 
-scraping().then(async (data) => {
-  if (data) {
-    console.log("data");
-    const parent_data_link = data.link;
-    // console.log(data.link);
-    const image_links = await fetchImages(data.link);
-    const productId = data.link.split("/prid/")[1];
+// scraping().then(async (data) => {
+//   if (data) {
+//     console.log("data");
+//     const parent_data_link = data.link;
+//     // console.log(data.link);
+//     const image_links = await fetchImages(data.link);
+//     const productId = data.link.split("/prid/")[1];
 
-    console.log("link: ----" + parent_data_link);
-    console.log(productId);
+//     console.log("link: ----" + parent_data_link);
+//     console.log(productId);
 
-    const ingredients = await fetchIngredients(
-      `https://blinkit.com/v1/layout/product/${productId}`
-    );
-    // console.log(image_links);
-    console.log(ingredients);
-    fs.writeFile("links.json", JSON.stringify(image_links), (err) => {
-      if (err) {
-        throw err;
-      }
-      console.log("Successfully Saved JSON File!");
-    });
-    fs.writeFile("ingredients.json", JSON.stringify(ingredients), (err) => {
-      if (err) {
-        console.log(err);
-      }
-      console.log("Successfully Saved Ingredients File");
-    });
-  }
-});
+//     const ingredients = await fetchIngredients(
+//       `https://blinkit.com/v1/layout/product/${productId}`
+//     );
+//     // console.log(image_links);
+//     console.log(ingredients);
+//   }
+// });
