@@ -1,10 +1,8 @@
+import db from "../db.js";
 import app from "./index.js";
-import { getFirestore } from "firebase-admin/firestore";
-
-const db = getFirestore();
 
 // Function to get a document by ID from the 'products' collection
-const getProductById = async (id) => {
+export const getProductById = async (id) => {
   try {
     let ref = db.collection("products");
     let snapshot = await ref.get();
@@ -16,4 +14,4 @@ const getProductById = async (id) => {
   }
 };
 
-getProductById("4QCFwPolzEpbIUjXcC88");
+getProductById();

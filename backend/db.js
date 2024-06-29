@@ -1,7 +1,5 @@
-
-import { getFirestore } from "firebase/firestore";
 import app from "./firebase/index.js";
+import { getFirestore } from "firebase-admin/firestore";
 
-const db = getFirestore(app);
+const db = getFirestore();
 export default db;
-

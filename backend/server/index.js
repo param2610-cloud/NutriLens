@@ -1,4 +1,5 @@
 import express from "express";
+import { getProductById } from "../firebase/products";
 
 const app = express();
 
@@ -18,8 +19,9 @@ const app = express();
 app.get("/getProduct", (req, res) => {
   let { code } = req.query;
 
+  getProductById();
+
   res.send("ok");
-  console.log(code);
 });
 
 app.listen("8080", async (req, res) => {
