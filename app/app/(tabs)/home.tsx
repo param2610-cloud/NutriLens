@@ -7,12 +7,12 @@ import {
   TouchableOpacity,
 } from "react-native";
 // import { Camera } from 'expo-camera';
-import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialIcons } from '@expo/vector-icons';
 import { router } from "expo-router";
 
 const HomeScreen: React.FC = () => {
-  // Dummy data for social media-like posts
-  const socialMediaPosts = [
+  
+  const socialMediaPosts = [    
     {
       id: 1,
       title: "Post 1",
@@ -92,11 +92,14 @@ const HomeScreen: React.FC = () => {
     },
     // Add more posts as needed
   ];
-
-  const handlePostPress = (postId: number) => {
-    // Navigate to the post detail screen and pass the postId as a parameter
-    router.push(`/${postId}`);
+  const handleCameraPress = () => {
+    router.push("../camera")
+    console.log('Camera button pressed!');
   };
+  const handlePostPress = (id:number) => {
+    router.push(`/${id}`);
+    console.log(id)
+  }
 
   return (
     <View style={styles.container}>
@@ -115,7 +118,7 @@ const HomeScreen: React.FC = () => {
       </ScrollView>
 
       {/* Camera button at bottom left */}
-      <TouchableOpacity style={styles.cameraButton}>
+      <TouchableOpacity style={styles.cameraButton} onPress={handleCameraPress}>
         <MaterialIcons name="camera-alt" size={24} color="white" />
       </TouchableOpacity>
     </View>
