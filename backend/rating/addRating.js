@@ -28,51 +28,62 @@ const pushTotalRating = async (pid, stars, rate_pid) => {
   }
 
   const countRef = db.collection("ratings_count").doc(pid);
-  const rate_Ref = db.collection("ratings").doc(rate_pid);
+  // console.log(rate_pid);
+  // const rate_Ref = db.collection("ratings").doc(rate_pid);
 
   // Fetch the current total_ratings and total_stars values
   const doc = await countRef.get();
-  const rate_doc = await rate_Ref.get();
+  // const rate_doc = await rate_Ref.get();
 
   if (doc.exists) {
-    // If the document exists, increment the total_ratings value and add to total_stars
-    const currentData = doc.data();
-    const currentTotalRatings = currentData.total_ratings || 0;
-    const currentTotalStars = currentData.total_stars || 0;
-
-    // const rate_stars = rate_doc.data().stars || 0;
-    const rate_stars = rate_doc.data().stars || 0;
-
-    console.log(rate_stars);
-
-    let newTotalRatings = currentTotalRatings;
-    let newTotalStars;
-    console.log("rate_stars "+rate_stars+"stars"+stars);
-    if (rate_stars < stars) {
-      newTotalStars = currentTotalStars + (stars - rate_stars );
-    }
-    else{
-      newTotalStars = currentTotalStars - (rate_stars-stars);
-
-    }
-  //  newTotalStars = currentTotalStars + stars;
-  console.log(newTotalStars);
-
-    // Update the document with the new total_ratings and total_stars values
+    let currentData = doc.data();
     await countRef.set({
-      total_ratings: newTotalRatings,
-      total_stars: newTotalStars,
-      average_stars:newTotalStars/newTotalRatings
+      total_ratings: currentData.total_ratings + 1,
+      total_stars: currentData.total_stars + stars,
     });
   } else {
-    // If the document does not exist, create it with total_ratings set to 1 and total_stars set to stars
     await countRef.set({
       total_ratings: 1,
       total_stars: stars,
-      average_stars:stars
-
     });
   }
+
+  // if (doc.exists) {
+  //   // If the document exists, increment the total_ratings value and add to total_stars
+  //   const currentData = doc.data();
+  //   const currentTotalRatings = currentData.total_ratings || 0;
+  //   const currentTotalStars = currentData.total_stars || 0;
+
+  //   // const rate_stars = rate_doc.data().stars || 0;
+  //   const rate_stars = rate_doc.data().stars || 0;
+
+  //   // console.log(rate_stars);
+
+  //   let newTotalRatings = currentTotalRatings;
+  //   let newTotalStars;
+  //   console.log("rate_stars " + rate_stars + "stars" + stars);
+  //   if (rate_stars < stars) {
+  //     newTotalStars = currentTotalStars + (stars - rate_stars);
+  //   } else {
+  //     newTotalStars = currentTotalStars - (rate_stars - stars);
+  //   }
+  //   //  newTotalStars = currentTotalStars + stars;
+  //   console.log(newTotalStars);
+
+  //   // Update the document with the new total_ratings and total_stars values
+  //   await countRef.set({
+  //     total_ratings: newTotalRatings,
+  //     total_stars: newTotalStars,
+  //     average_stars: newTotalStars / newTotalRatings,
+  //   });
+  // } else {
+  //   // If the document does not exist, create it with total_ratings set to 1 and total_stars set to stars
+  //   await countRef.set({
+  //     total_ratings: 1,
+  //     total_stars: stars,
+  //     average_stars: stars,
+  //   });
+  // }
 
   return {
     success: true,
@@ -103,30 +114,28 @@ const addRating = async (pid, user_id, stars) => {
   if (doc.exists) {
     // If the document exists, check if the user has already rated the product
     // const existingRating = doc.data().user_id === user_id;
-
-    
+    console.log(uid);
     const pushed = await pushTotalRating(pid, stars, uid);
     await ratingRef.set({
       user_id,
       stars: stars,
-      pid
+      pid,
     });
     console.log(pushed);
     return { success: true, message: "Rating added successfully." };
-    
   } else {
     // If the document does not exist, create a new rating
     console.log(user_id);
-    await ratingRef.set({ user_id, stars,pid });
-    const pushed = pushTotalRating(pid, stars, );
+    await ratingRef.set({ user_id, stars, pid });
+    const pushed = pushTotalRating(pid, stars, uid);
     console.log(pushed);
     return { success: true, message: "Rating added successfully." };
   }
 };
 
 // Example usage
-const resp = await addRating("productId1347", "userId95", 3);
+// const resp = await addRating("productId1347", "userId97", 4);
 
-//  addRating("product2","pritam_6",1);
-console.log(resp);
+// //  addRating("product2","pritam_6",1);
+// console.log(resp);
 export default addRating;

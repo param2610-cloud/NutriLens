@@ -2,6 +2,8 @@ import express from "express";
 import { addProductWithId, getProductById } from "../firebase/products.js";
 import { fetchImages, fetchIngredients, scraping } from "../scrapper/index.js";
 import { getActualAmount, getImageInfo, getLimits } from "../GetInfo.js";
+import addRating from "../rating/addRating.js";
+import viewRatings from "../rating/viewRating.js";
 
 const app = express();
 
@@ -64,6 +66,8 @@ app.get("/add-rating", async (req, res) => {
   try {
     let { rating, user_id, code } = req.query;
 
+    await addRating(code, user_id, rating);
+
     res.send("ok");
   } catch (err) {
     res.status(500).send("failed");
@@ -74,7 +78,9 @@ app.get("/get-rating", async (req, res) => {
   try {
     let { code } = req.query;
 
-    res.send("ok");
+    let resp = await viewRatings(code);
+
+    res.send(resp);
   } catch (err) {
     res.status(500).send("failed");
   }
