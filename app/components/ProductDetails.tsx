@@ -1,5 +1,6 @@
 import React from "react";
 import { StyleSheet, Text, View, Image, ScrollView } from "react-native";
+import StarRating from "./StarRating";
 
 interface Nutrients {
   energy: string;
@@ -55,8 +56,11 @@ const ProductDetails: React.FC = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.productName}>{product.name}</Text>
+      <Text style={styles.productName}>
+        {product.name} <Text style={{ color: "#FFD700" }}>(5★)</Text>
+      </Text>
       <Image source={{ uri: product.image }} style={styles.productImage} />
+
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Nutrients</Text>
         {Object.keys(product.nutrients).map((nutrient, index) => {
@@ -90,6 +94,10 @@ const ProductDetails: React.FC = () => {
             </>
           );
         })}
+      </View>
+      <View style={{ marginVertical: "5%" }}>
+        <Text>Give it a Rating</Text>
+        <StarRating />
       </View>
     </ScrollView>
   );
