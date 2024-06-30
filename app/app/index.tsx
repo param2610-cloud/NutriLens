@@ -138,8 +138,18 @@ export default function App() {
 
   return (
     <View>
+      <Text style={styles.title}>NutriLens</Text>
       <Auth />
       {session && session.user && <Text>Success</Text>}
     </View>
   )
 }
+
+const styles =StyleSheet.create({
+  title:{
+    display:"flex",
+    top:70,
+    fontSize:30,justifyContent:"center",alignItems:"center",
+    left:125,fontWeight:"bold"
+  },
+})

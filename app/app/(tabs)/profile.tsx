@@ -20,8 +20,8 @@ router.push("/")
   return (
     <View style={styles.container}>
       <View style={styles.profileContainer}>
-        <Text style={styles.text}>Name: John Doe</Text>
-        <Text style={styles.text}>Email: johndoe@example.com</Text>
+        <Text style={styles.text}>Name: Parambrata Ghosh</Text>
+        <Text style={styles.text}>Email: gpampa138@gmail.com</Text>
         <View style={styles.buttonContainer}>
           {
             loading?<ActivityIndicator color={"#fff"} /> : <Button title="Logout" onPress={handleLogout} />

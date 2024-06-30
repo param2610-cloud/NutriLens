@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { StyleSheet, Text, View, Image, ScrollView, Alert } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useLocalSearchParams } from "expo-router";
@@ -47,6 +48,7 @@ const slug = () => {
         const res = await fetch(url);
         if (res.ok) {
           const finalData: Product = await res.json();
+          
           setProduct(finalData);
           console.log(finalData)
         } else {
@@ -59,9 +61,9 @@ const slug = () => {
     fetchProduct();
   }, [barcode]);
 
-  const exceedsDailyValue = (nutrient: string, amount: string): boolean => {
+  const exceedsDailyValue = (nutrient: string, amount: string, limit: number): boolean => {
     const numericValue = parseFloat(amount);
-    return numericValue > (dailyValues[nutrient] || Number.MAX_VALUE);
+    return numericValue > limit;
   };
 
   if (!product) {
@@ -71,33 +73,41 @@ const slug = () => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.productName}>
+        {console.log(product.images[0])}
         {product.name} <Text style={{ color: "#FFD700" }}>(5★)</Text>
+        {/* {JSON.stringify(product)} */}
       </Text>
-      <Image source={{ uri: product.image }} style={styles.productImage} />
+      <Image source={{ uri: product.images[0] }} style={styles.productImage} />
 
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Nutrients</Text>
-        {Object.keys(product.nutrients || {}).map((nutrient, index) => {
-          console.log("this is ",nutrient)
-          const nutrientValue = product.nutrients[nutrient as keyof Nutrients];
-          if (!nutrientValue) return null;
-          const amount = nutrientValue.replace(/[^\d.]/g, "");
-          const unit = nutrientValue.replace(/[\d.]/g, "");
+        {Object.keys(product.nutrient_label || {}).map((nutrient, index) => {
+          const nutrientValue = product.nutrient_label[nutrient as keyof Nutrients];  
+          // if (typeof nutrientValue != 'object') return null;
+          if(typeof nutrientValue == 'string' || !nutrientValue) return null;
+          // // const amount = nutrientValue.replace(/[^\d.]/g, "");
+          console.log("NV", nutrientValue);  
+
+          // const unit = nutrientValue.replace(/[\d.]/g, "");
+          const amount = nutrientValue['value'];
+          const unit = nutrientValue['unit'];
+          const limit = nutrientValue['limit'];
+          
           return (
             <View key={index} style={styles.nutrientRow}>
               <Text style={styles.nutrientLabel}>
-                {nutrient.replace("_", " ")}:
+                {nutrient}:
               </Text>
               <Text
                 style={[
                   styles.nutrientValue,
-                  exceedsDailyValue(nutrient, amount) && styles.exceed,
+                  exceedsDailyValue(nutrient, amount, limit) && styles.exceed,
                 ]}
               >
-                {nutrientValue}
+                {nutrientValue.value}
               </Text>
               <Text style={styles.dailyValue}>
-                (Daily: {dailyValues[nutrient]}
+                (Daily: {limit}
                 {unit})
               </Text>
             </View>
