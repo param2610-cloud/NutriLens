@@ -18,7 +18,7 @@ app.get("/getProduct", async (req, res) => {
       const productId = data.link.split("/prid/")[1];
       let [images, ingredients] = await Promise.all([
         fetchImages(data.link),
-        fetchIngredients(`https://blinkit.com/v1/layout/product/${productId}`),
+        // fetchIngredients(`https://blinkit.com/v1/layout/product/${productId}`),
       ]);
       let maybe = images.filter((e) => {
         let f = e.split("/sliding_image/")[1];
@@ -49,6 +49,7 @@ app.get("/getProduct", async (req, res) => {
       name["name"] = data.textContent;
       name["nutrient_label"] = g;
       name["barcode"] = code;
+      name["images"] = images;
 
       addProductWithId(code, name);
 
