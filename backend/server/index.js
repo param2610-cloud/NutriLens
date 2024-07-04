@@ -5,6 +5,12 @@ import { jio_mart_fetch, jio_mart_image_details_fetch, jio_mart_image_fetch, jio
 import addRating from "../rating/addRating.js";
 import viewRatings from "../rating/viewRating.js";
 import { product_name_fetch_go_upc } from "../scrapper/index.js";
+import dotenv from 'dotenv'
+import authRoutes from '../routes/authRoutes.js'
+import pool from '../config/db.js'
+
+
+dotenv.config();
 
 const app = express();
 
@@ -173,6 +179,9 @@ app.get("/get-rating", async (req, res) => {
     res.status(500).send("failed");
   }
 });
+
+app.use('/api/auth', authRoutes);
+
 
 app.listen("8080", async (req, res) => {
   console.log("Server is listening at 8080");
