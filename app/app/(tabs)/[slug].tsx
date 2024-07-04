@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { StyleSheet, Text, View, Image, ScrollView, Alert } from "react-native";
 import React, { useEffect, useState } from "react";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 
 import StarRating from "../../components/StarRating";
 
@@ -44,18 +44,19 @@ const slug = () => {
   useEffect(() => {
     async function fetchProduct() {
       try {
-        const url = `http://192.168.125.202:8080/getProduct?code=${barcode}`;
+        const url = `http://192.168.0.158:8080/getProduct?code=${barcode}`;
         const res = await fetch(url);
         if (res.ok) {
           const finalData: Product = await res.json();
           
           setProduct(finalData);
-          console.log(finalData)
+          // console.log(finalData)
         } else {
           Alert.alert("Please scan another item or try again");
         }
       } catch (error) {
         Alert.alert("An error occurred. Please try again.");
+        router.push("./home")
       }
     }
     fetchProduct();
@@ -73,7 +74,7 @@ const slug = () => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.productName}>
-        {console.log(product.images[0])}
+        {/* {console.log(product.images[0])} */}
         {product.name} <Text style={{ color: "#FFD700" }}>(5★)</Text>
         {/* {JSON.stringify(product)} */}
       </Text>

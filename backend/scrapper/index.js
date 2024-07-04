@@ -1,174 +1,183 @@
-import puppeteer from "puppeteer";
+import {getImageInfo} from '../GetInfo.js'
+import puppeteer from "puppeteer-extra";
 
-import fetch from "node-fetch";
-import { parse } from "node-html-parser";
+export const product_name_fetch_go_upc = async (barcode) => {
+  let browser;
+  try {
+    browser = await puppeteer.launch({ headless: true });
+    const page = await browser.newPage();
+    const go_upc_search = `https:/www.google.com/search?q=details of ${barcode}`;
+    await page.goto(go_upc_search);
+    
 
-export const fetchIngredients = async (link) => {
-  let resp = await fetch(link, {
-    headers: {
-      accept: "*/*",
-      "accept-language": "en-US,en;q=0.6",
-      access_token: "null",
-      app_client: "consumer_web",
-      app_version: "1010101010",
-      auth_key:
-        "c761ec3633c22afad934fb17a66385c1c06c5472b4898b866b7306186d0bb477",
-      "cache-control": "no-cache",
-      "content-type": "application/json",
-      device_id: "cc49219f-ca56-485f-869e-15d830d42ab7",
-      lat: "22.458398250000002",
-      lon: "88.38387125",
-      pragma: "no-cache",
-      priority: "u=1, i",
-      rn_bundle_version: "1009003012",
-      "sec-ch-ua": '"Not/A)Brand";v="8", "Chromium";v="126", "Brave";v="126"',
-      "sec-ch-ua-mobile": "?0",
-      "sec-ch-ua-platform": '"Windows"',
-      "sec-fetch-dest": "empty",
-      "sec-fetch-mode": "cors",
-      "sec-fetch-site": "same-origin",
-      "sec-gpc": "1",
-      session_uuid: "eb264cc2-c65b-4e7b-9d56-be71482ab179",
-      web_app_version: "1008010016",
-      "x-age-consent-granted": "false",
-      cookie:
-        "gr_1_deviceId=cc49219f-ca56-485f-869e-15d830d42ab7; city=Petlad; gr_1_lat=22.458398250000002; gr_1_lon=88.38387125; gr_1_locality=957; gr_1_landmark=undefined; __cfruid=82a1525682967fd90f4dfc631066bcb2cfa658b8-1719643157; _cfuvid=6u2m4Tw78CFcoVB8cyGGN8ju7VPlFOvtkDkpf41Q3w4-1719643157560-0.0.1.1-604800000; __cf_bm=VDrITFK.1OuUSPhjSIQCItq6IKXwwkHZOKkiRu8ZaAs-1719655097-1.0.1.1-DyuyT3SEz6_7Y2PMUctLpuW_kXBFxxmi4osynj2QQbkvyXfJTjFSAVUUy1dO3.kOVJo73.032FF7Q.geFn2OkQ",
-      Referer:
-        "https://blinkit.com/prn/lays-indias-magic-masala-chips-40-g/prid/240092",
-      "Referrer-Policy": "strict-origin-when-cross-origin",
-    },
-    body: null,
-    method: "POST",
-  });
+    await page.waitForSelector('a[jsname="UWckNb"]');
 
-  // console.log(resp.snippet_list_updater_data.expand_attributes.payload.snippets_to_add);
+    const anchor_element = await page.$('a[jsname="UWckNb"]');
 
-  // console.log(await resp.json());
-  resp = await resp.json();
-  const snippets =
-    resp.response.snippet_list_updater_data.expand_attributes.payload
-      .snippets_to_add;
+    const Product_name = await page.evaluate(
+      (element) => element.querySelector("h3.LC20lb").textContent,
+      anchor_element
+    );
 
-  const ingredientSnippet = snippets.filter((ele) => {
-    if (ele.data && ele.data.title && ele.data.title.text) {
-      return ele.data.title.text.toLowerCase() === "ingredients";
+    console.log("Name: ", Product_name);
+    if (Product_name == null) {
+      return false;
+    }
+    return Product_name;
+  } catch (error) {
+    console.error("Error during scraping:", error);
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
+  }
+};
+export const jio_mart_fetch = async (ProductName) => {
+  if (!ProductName) {
+    return false;
+  }
+  //link fetch
+  const Data = await jio_mart_product_fetch_link(ProductName);
+  if (!Data.success) {
+    console.log("data 1 failed")
+    return { success: false, link: null };
+  }
+  
+  //image fetch
+  const Data1 = await jio_mart_image_fetch(Data.link);
+  console.log("asdad",Data1.imgSrc);
+  if (!Data1.success) {
+    console.log("data 2 failed")
+    return { success: false, link: null };
+  }
+  const Data2 = await jio_mart_image_details_fetch(Data1.imgSrc);
+  if (!Data2) {
+    console.log("data 3 failed")
+    return {productdetails:null,success:true}
+  }
+  return {productdetails:Data2,success:true}
+};
+
+export const jio_mart_product_fetch_link = async (Product_name) => {
+  let browser;
+  const isSameProduct = (H3Word, Product_name) => {
+    const wordInH3 = H3Word.toLowerCase().split(/\s+/);
+    const wordInName = Product_name.toLowerCase().split(/\s+/);
+    const setH3 = new Set(wordInH3);
+    const setName = new Set(wordInName);
+    for (let word of setName) {
+      if (setH3.has(word)) {
+        return true;
+      }
     }
     return false;
-  });
+  };
+  try {
+    browser = await puppeteer.launch({ headless: true });
+    const page = await browser.newPage();
+    const jio_mart_search = `https://www.google.com/search?q=${Product_name} jio mart`;
+    await page.goto(jio_mart_search);
 
-  return ingredientSnippet[0] && ingredientSnippet[0].data.subtitle.text;
+    await page.waitForSelector('a[jsname="UWckNb"]');
 
-  // console.log("Ingredient snippet:", );
-  // console.log(resp.snippet_list_updater_data.expand_attributes.payload.snippets_to_add);
+    const anchor_element = await page.$('a[jsname="UWckNb"]');
 
-  // const root = parse(resp);
-  // console.log(root);
+    if (anchor_element) {
+      const href = await page.evaluate(
+        (element) => element.getAttribute("href"),
+        anchor_element
+      );
 
-  // //   const ingredients="";
-  // //   console.log(root);
+      const product_h3_text = await page.evaluate(
+        (element) => element.querySelector("h3.LC20lb").textContent,
+        anchor_element
+      );
 
-  // const igre = root.querySelector("div");
-  // console.log(igre);
+      const company_name_element = await page.$("span.VuuXrf");
+      const company_name = company_name_element
+        ? await page.evaluate(
+            (element) => element.textContent,
+            company_name_element
+          )
+        : null;
+
+      if (company_name != "JioMart") {
+        return { success: false, link: null };
+      } else if (
+        company_name == "JioMart" &&
+        href &&
+        isSameProduct(product_h3_text, Product_name)
+      ) {
+        return { success: true, link: href };
+      } else {
+        return { success: false, link: null };
+      }
+    } else {
+      console.error("Anchor element not found");
+    }
+  } catch (error) {
+    console.error("Error during scraping from big basket: ", error);
+
+    return { success: false, link: null };
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
+  }
 };
 
-export const fetchImages = async (link) => {
-  let resp = await fetch(link, {
-    headers: {
-      accept:
-        "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-      "accept-language": "en-US,en;q=0.9",
-      "cache-control": "max-age=0",
-      priority: "u=0, i",
-      "sec-ch-ua":
-        '"Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"',
-      "sec-ch-ua-mobile": "?0",
-      "sec-ch-ua-platform": '"Windows"',
-      "sec-fetch-dest": "document",
-      "sec-fetch-mode": "navigate",
-      "sec-fetch-site": "cross-site",
-      "sec-fetch-user": "?1",
-      "upgrade-insecure-requests": "1",
-      cookie:
-        "gr_1_deviceId=1e41c4d5-78b4-4554-9ee9-70a2b3286e1f; _gcl_au=1.1.1462852392.1719634039; gr_1_lat=28.4652382; gr_1_lon=77.0615957; gr_1_locality=1849; _gid=GA1.2.1564788996.1719634039; _fbp=fb.1.1719634039631.390347670648404354; gr_1_landmark=undefined; city=Kolkata; __cfruid=f836d204192ba6bd6bd9d23628859cfc80d24ff1-1719640369; _cfuvid=atFtJAwFtH5eSHMZYz5.CA_k2sXeZ15Da9eSrVCMQ2k-1719640369706-0.0.1.1-604800000; __cf_bm=K19vZM2VQx8j0EuLf6p9ydG9oMjpc_d9sNpT1Cug5JM-1719655779-1.0.1.1-SMeWm6SnQ_Btl2mVLHeJLwyAPdcSt5VF1HXE0aC2J8vaPF9XHbZm7PEZPZvHhDEMIZOV4F8jjwRWbWuYxzYfyA; _ga=GA1.1.78518523.1719634039; _ga_JSMJG966C7=GS1.1.1719655782.3.1.1719655831.11.0.0; _ga_DDJ0134H6Z=GS1.2.1719655785.4.1.1719655832.13.0.0",
-      Referer: "https://www.google.com/",
-      "Referrer-Policy": "origin",
-    },
-    body: null,
-    method: "GET",
-  });
+export const jio_mart_image_fetch = async (link) => {
+  let browser;
+  if (!link) {
+    return { imgSrc: null, success: false };
+  }
 
-  resp = await resp.text();
-
-  const root = parse(resp);
-  const allImages = [];
-
-  root
-    .querySelectorAll("#carousel-items > section > div > img")
-    .forEach((img, i) => {
-      let urlMatch;
-      if (img) {
-        urlMatch = img.rawAttrs.match(/src="([^"]+)"/);
+  try {
+    browser = await puppeteer.launch({ headless: true });
+    const page = await browser.newPage();
+    await page.goto(link, { waitUntil: "networkidle2" });
+    const imgSrc = await page.evaluate(() => {
+      const div = document.querySelector('[aria-label^="5"]');
+      if (div) {
+        const img = div.querySelector("img");
+        if (img) {
+          const image_url = img.src;
+          const resized_image_url = image_url.replace(
+            "Resize=(150,150)",
+            "Resize=(420,420)"
+          );
+          return (
+            resized_image_url ||
+            img
+              .getAttribute("data-src")
+              .replace("Resize=(150,150)", "Resize=(420,420)") ||
+            null
+          );
+        }
       }
-
-      if (urlMatch && urlMatch[1]) {
-        const imageUrl = urlMatch[1];
-        allImages.push(imageUrl);
-      }
+      return null;
     });
 
-  //   console.log(allImages);
-  return allImages;
+    return { imgSrc, success: !!imgSrc };
+  } catch (error) {
+    console.log("Error fetching the image:", error);
+    return { imgSrc: null, success: false };
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
+  }
 };
 
-const browser = await puppeteer.launch({ headless: true });
-export const scraping = async (barcode) => {
-  // Launch a browser and open a new blank page
-  const page = await browser.newPage();
-
-  const google_search = `https://www.google.com/search?q=${barcode}%20blinklit`;
-
-  // Navigate to the page url
-  await page.goto(google_search);
-
-  // Extract the text content of the first h3 element with the specified class
-  // and the href attribute of the first a tag with the specified attribute
-  const search_data = await page.evaluate(() => {
-    // Select the first h3 element with the class LC20lb MBeuO DKV0Md
-    const firstH3Element = document.querySelector("h3.LC20lb.MBeuO.DKV0Md");
-
-    // Select the first a tag with the attribute jsname="UWckNb"
-    const firstATag = document.querySelector('a[jsname="UWckNb"]');
-
-    // Extract the text content and href attribute
-    const textContent = firstH3Element ? firstH3Element.textContent : null;
-    const link = firstATag ? firstATag.href : null;
-
-    return { textContent, link };
-  });
-
-  // console.log(search_data);
-
-  // await browser.close();
-  return search_data;
+export const jio_mart_image_details_fetch = async (link) => {
+  try {
+    const imageInfo = await getImageInfo(null, link);
+    console.log("Image Info:", imageInfo);
+    return imageInfo
+  } catch (error) {
+    console.error("Error processing image:", error);
+  }
 };
 
-// scraping();
 
-// scraping().then(async (data) => {
-//   if (data) {
-//     console.log("data");
-//     const parent_data_link = data.link;
-//     // console.log(data.link);
-//     const image_links = await fetchImages(data.link);
-//     const productId = data.link.split("/prid/")[1];
 
-//     console.log("link: ----" + parent_data_link);
-//     console.log(productId);
-
-//     const ingredients = await fetchIngredients(
-//       `https://blinkit.com/v1/layout/product/${productId}`
-//     );
-//     // console.log(image_links);
-//     console.log(ingredients);
-//   }
-// });

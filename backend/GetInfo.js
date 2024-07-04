@@ -1,11 +1,4 @@
-/*
- * Install the Generative AI SDK
- *
- * $ npm install @google/generative-ai
- *
- * See the getting started guide for more information
- * https://ai.google.dev/gemini-api/docs/get-started/node
- */
+
 
 import { configDotenv } from "dotenv";
 import getImports from "./import.cjs";
@@ -23,12 +16,6 @@ configDotenv();
 const apiKey = process.env.GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(apiKey);
 const fileManager = new GoogleAIFileManager(apiKey);
-
-/**
- * Uploads the given file to Gemini.
- *
- * See https://ai.google.dev/gemini-api/docs/prompting_with_media
- */
 async function uploadToGemini(path, mimeType) {
   const uploadResult = await fileManager.uploadFile(path, {
     mimeType,
@@ -53,22 +40,9 @@ const generationConfig = {
   responseMimeType: "text/plain",
 };
 
-// getImageInfo(
-//   "test.jpeg",
-//   "https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=100,metadata=none,w=5000,h=500/app/images/products/sliding_image/325673d.jpg?ts=1676095852"
-// ).then(console.log);
 
-// console.log(
-//   await (
-//     await fetch(
-//       "https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=100,metadata=none,w=5000,h=500/app/images/products/sliding_image/325673d.jpg?ts=1676095852"
-//     )
-//   ).arrayBuffer()
-// );
 
 export async function getImageInfo(path, image_url) {
-  // TODO Make these files available on the local file system
-  // You may need to update the file paths
   let files;
   if (!image_url) {
     files = [await uploadToGemini(path, "image/jpeg")];
@@ -76,17 +50,12 @@ export async function getImageInfo(path, image_url) {
   }
   const chatSession = model.startChat({
     generationConfig,
-    // safetySettings: Adjust safety settings
-    // See https://ai.google.dev/gemini-api/docs/safety-settings
+  
     history: [
       {
         role: "user",
         parts: [
           {
-            // fileData: {
-            //   mimeType: files[0].mimeType,
-            //   // fileUri: files[0].uri,
-            // },
             inlineData: {
               data: Buffer.from(
                 await (await fetch(image_url)).arrayBuffer()
@@ -136,4 +105,25 @@ export function getLimits(data) {
   }
 
   return data;
+}
+
+export async function getNutritionalInfoGemini(productName) {
+  if (!productName) {
+    return { error: "Please provide a product name." };
+  }
+
+  try {
+    // Assuming you have a library/function to access the Gemini model
+    const model = await genAI.getGenerativeModel({
+      model: "gemini-1.5-flash",
+      systemInstruction: `You are a nutrition expert. Provide the nutritional information of the following product in JSON format, including serving size and details like energy, protein, etc.: { "type": "nutrient_label", "serving_size": " (in grams)", "nutrients": {...} }. If the information is not available, indicate "not found".`,
+    });
+
+    const prompt = `What is the nutritional information of ${productName}?`;
+    const response = await model.generateContent(prompt);
+    return response|| { error: "No information found." }
+  } catch (error) {
+    console.error("Error retrieving nutritional information:", error);
+    return { error: "An error occurred. Please try again later." };
+  }
 }

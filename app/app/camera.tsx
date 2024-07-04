@@ -1,23 +1,27 @@
 import { Camera, CameraType } from 'expo-camera/legacy';
 import { useState } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View,TextInput } from 'react-native';
+import {MD3Colors, ProgressBar} from 'react-native-paper'
 import { BarcodeScanningResult } from 'expo-camera';
 import { router } from 'expo-router';
 import slug from './(tabs)/[slug]';
 
 
 export default function App() {
+  //variable declaration
   const [type, setType] = useState(CameraType.back);
   const [inputText, setInputText] = useState('');
   const [permission, requestPermission] = Camera.useCameraPermissions();
+  const [scan, setscan ] = useState<string[]>([])
+  const [noofscan, setnoofscan] = useState<number>(0)
 
+
+// camera permission section start
   if (!permission) {
-    // Camera permissions are still loading
     return <View />;
   }
 
   if (!permission.granted) {
-    // Camera permissions are not granted yet
     return (
       <View style={styles.container}>
         <Text style={{ textAlign: 'center' }}>We need your permission to show the camera</Text>
@@ -25,30 +29,50 @@ export default function App() {
       </View>
     );
   }
-
+  
   function toggleCameraType() {
     setType(current => (current === CameraType.back ? CameraType.front : CameraType.back));
   }
+  // end
+  
+  
+  // submit section
+  const getMostFrequentBarcode = (barcodes:string[]) =>{
+    const frequencyMap: { [key: string]: number } = barcodes.reduce((acc: { [key:string]:number}, barcode:string) => {
+      acc[barcode] = (acc[barcode] || 0) + 1;
+      return acc;
+    }, {});
+
+    return Object.keys(frequencyMap).reduce((a, b) => frequencyMap[a] > frequencyMap[b] ? a : b);
+  }
+
+
   const handleSubmit = () => {
     console.log('Submitted:', inputText);
+    router.push(`/loading?q=${inputText}`)
     setInputText('');
   };
-//   const [scanned, setScanned] = useState(false);
-//     const [result, setResult] = useState('Nothing scanned yet');
 
-//         const scanHandler = (type:any, data:any) => {
-//     setScanned(false); // <----- change this 
-//     setResult(data);
-    
-//     setTimeout(() => {
-//         setScanned(true); // <----- change this 
-//     }, 3000);
-// }
-  const postScan = (result:any)=>{
+
+  const postScan = (result:string)=>{
     if(result){
-      router.push(`/${result}`)
+      setnoofscan(i=>i+0.1)
+      setscan(prevelement =>{ 
+        const update_scans = [...prevelement,result]
+        if(update_scans.length === 10){
+          const mostFrequentBarcode = getMostFrequentBarcode(update_scans)
+          console.log("scanned barcode from camera: ", mostFrequentBarcode)
+          try {
+            router.push(`/loading?q=${mostFrequentBarcode}`)
+          } catch (error) {
+            console.log(error)
+          }
+        }
+        return update_scans
+      })
     }
   }
+  //end
 
   return (
     <View style={styles.container}>
@@ -60,6 +84,12 @@ export default function App() {
             <Text style={styles.text}>Flip Camera</Text>
           </TouchableOpacity>
         </View>
+        <ProgressBar
+          style={styles.progress}
+          progress={noofscan}
+          color={"green"}
+          
+        />
 
         
         <View style={styles.inputContainer}>
@@ -134,4 +164,8 @@ const styles = StyleSheet.create({
       fontSize: 16,
       textAlign: 'center',
     },
+    progress:{
+      height:10,
+      
+    }
   });

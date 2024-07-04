@@ -38,6 +38,13 @@ export default function TabLayout() {
           title: "Details",
         }} // based on docs this will hide the tab
       />
+      <Tabs.Screen
+        name="loading"
+        options={{
+          href: null,
+          title: "Loading",
+        }} // based on docs this will hide the tab
+      />
     </Tabs>
   );
 }
