@@ -122,9 +122,9 @@ const HomeScreen: React.FC = () => {
       </ScrollView>
 
       {/* Camera button at bottom left */}
-      <TouchableOpacity style={styles.cameraButton} onPress={handleCameraPress}>
+      {/* <TouchableOpacity style={styles.cameraButton} onPress={handleCameraPress}>
         <MaterialIcons name="camera-alt" size={24} color="white" />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 };
